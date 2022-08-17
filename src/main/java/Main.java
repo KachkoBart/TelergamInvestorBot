@@ -2,6 +2,7 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import mainBot.Bot;
 import org.apache.log4j.PropertyConfigurator;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.TelegramBotsApi;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -14,6 +15,7 @@ import ru.tinkoff.invest.openapi.model.rest.MarketInstrument;
 import ru.tinkoff.piapi.contract.v1.Share;
 import ru.tinkoff.piapi.core.InvestApi;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -26,21 +28,13 @@ public class Main{
         String log4jConfPath = "C:/Users/shv-0/IdeaProjects/TelergamInvestorBot/src/main/java/Properties/log4j.properties";
         PropertyConfigurator.configure(log4jConfPath);
         log.info("Start");
-        Bot bot = new Bot();
+        ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext(
+                "applicationContext.xml"
+        );
+        Bot bot = context.getBean("telegramBotBean", Bot.class);
         TelegramBotsApi telegramBotsApi = new TelegramBotsApi(DefaultBotSession.class);
         telegramBotsApi.registerBot(bot);
-        var api = InvestApi.createSandbox(System.getenv("token"));
-        var list = api.getInstrumentsService().getAllShares().get();
-
-        list.stream().filter(e -> e.getCountryOfRisk().equals("RU")).forEach(e -> {
-            try {
-                System.out.println(e.getName() + " " + api.getMarketDataService().getLastPrices(List.of(e.getFigi())).get().get(0).getPrice().getNano());
-            } catch (InterruptedException ex) {
-                ex.printStackTrace();
-            } catch (ExecutionException ex) {
-                ex.printStackTrace();
-            }
-        });
+        context.close();
     }
 
 

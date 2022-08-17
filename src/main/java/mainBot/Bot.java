@@ -1,22 +1,32 @@
 package mainBot;
 
+import Services.Service;
+import Services.TinkoffService;
+import lombok.AllArgsConstructor;
+import lombok.Setter;
 import lombok.SneakyThrows;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
-import org.telegram.telegrambots.meta.TelegramBotsApi;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.MessageEntity;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
-import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
-import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
 
 import java.util.*;
 
-
+@AllArgsConstructor
 public class Bot extends TelegramLongPollingBot {
+    @Setter
+    private Service service;
+    private List<List<String>> currencies;
+
+    public Bot(TinkoffService service) {
+        this.service = service;
+    }
+
 
     @Override
     public String getBotUsername() {
@@ -32,6 +42,59 @@ public class Bot extends TelegramLongPollingBot {
     public void onUpdateReceived(Update update) {
         if(update.hasMessage()){
             handleMessage(update.getMessage());
+        } else if(update.hasCallbackQuery()){
+            CallbackQuery(update.getCallbackQuery());
+        }
+    }
+    @SneakyThrows
+    private void CallbackQuery(CallbackQuery callbackQuery){
+        if(callbackQuery.getData().contains("Currency")){
+            CallBackQueryCurrency(callbackQuery);
+        } else if(callbackQuery.getData().contains("Update")){
+            CallBackQueryCurrencyUpdate(callbackQuery);
+        }
+    }
+    @SneakyThrows
+    private void CallBackQueryCurrency(CallbackQuery callbackQuery){
+        String data = callbackQuery.getData();
+        List<InlineKeyboardButton> update = new ArrayList<>();
+        int i = Integer.parseInt(data.split(" ")[1]);
+        update.add(
+                InlineKeyboardButton.builder()
+                        .text("Обновить♻️")
+                        .callbackData("Update " + i)
+                        .build()
+        );
+        execute(
+                SendMessage.builder()
+                        .chatId(callbackQuery.getMessage().getChatId())
+                        .text("1 " + currencies.get(i).get(0) + " = "+ currencies.get(i).get(3) + " Руб")
+                        .replyMarkup(InlineKeyboardMarkup.builder().keyboardRow(update).build())
+                        .build()
+        );
+    }
+    @SneakyThrows
+    private void CallBackQueryCurrencyUpdate(CallbackQuery callbackQuery){
+        String data = callbackQuery.getData();
+        List<InlineKeyboardButton> update = new ArrayList<>();
+        int i = Integer.parseInt(data.split(" ")[1]);
+        var price = service.getPricesByFigies(List.of(currencies.get(i).get(1))).get(0);
+        currencies.get(i).set(3, price);
+        if(!price.equals(currencies.get(i).get(3))){
+            update.add(
+                    InlineKeyboardButton.builder()
+                            .text("Обновить♻️")
+                            .callbackData("Update " + i)
+                            .build()
+            );
+            execute(
+                    EditMessageText.builder()
+                            .chatId(callbackQuery.getMessage().getChatId())
+                            .messageId(callbackQuery.getMessage().getMessageId())
+                            .text("1 " + currencies.get(i).get(0) + " = "+ currencies.get(i).get(3) + " Руб")
+                            .replyMarkup(InlineKeyboardMarkup.builder().keyboardRow(update).build())
+                            .build()
+            );
         }
     }
     @SneakyThrows
@@ -44,30 +107,39 @@ public class Bot extends TelegramLongPollingBot {
                 switch (command) {
                     case "/choose_a_promotion":
                         choosePromotion(message);
+                    case "/choose_a_currency":
+                        chooseCurrency(message);
                 }
             }
         }
     }
     @SneakyThrows
-    protected void choosePromotion(Message message){
+    private void chooseCurrency(Message message){
         List<List<InlineKeyboardButton>> list = new ArrayList<>();
-        list.add(
-                List.of(InlineKeyboardButton.builder()
-                        .text("SBER")
-                        .callbackData("11")
-                        .build())
+        this.currencies = service.getAllNotEmptyCurrencies();
+        int len = currencies.size();
+        for (int i = 0;i < len;i++) {
+            list.add(
+                    List.of(InlineKeyboardButton.builder()
+                            .text(currencies.get(i).get(0))
+                            .callbackData("Currency " + i)
+                            .build())
+            );
+        }
+        execute(
+                SendMessage.builder()
+                        .text("Выбери валюту")
+                        .chatId(message.getChatId().toString())
+                        .replyMarkup(InlineKeyboardMarkup.builder().keyboard(list).build())
+                        .build()
         );
-        list.add(
-                List.of(InlineKeyboardButton.builder()
-                        .text("2")
-                        .callbackData("11")
-                        .build())
-        );
+    }
+    @SneakyThrows
+    private void choosePromotion(Message message){
         execute(
                 SendMessage.builder()
                         .text("1234")
                         .chatId(message.getChatId().toString())
-                        .replyMarkup(InlineKeyboardMarkup.builder().keyboard(list).build())
                         .build()
         );
     }
