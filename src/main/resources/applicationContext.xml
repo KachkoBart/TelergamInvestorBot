@@ -7,13 +7,8 @@
         http://www.springframework.org/schema/context
         http://www.springframework.org/schema/context/spring-context.xsd">
 
-    <bean id="tinkoffServiceBean"
-          class="Services.TinkoffService">
-    </bean>
-    <bean id="telegramBotBean"
-          class="mainBot.Bot">
-        <constructor-arg name="service" ref="tinkoffServiceBean"/>
-    </bean>
+    <context:component-scan base-package="Services"/>
+    <context:component-scan base-package="mainBot"/>
 
 
 
