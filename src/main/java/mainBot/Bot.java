@@ -5,6 +5,7 @@ import Services.TinkoffService;
 import lombok.AllArgsConstructor;
 import lombok.Setter;
 import lombok.SneakyThrows;
+import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
@@ -18,6 +19,7 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKe
 import java.util.*;
 
 @AllArgsConstructor
+@Component
 public class Bot extends TelegramLongPollingBot {
     @Setter
     private Service service;
@@ -59,19 +61,30 @@ public class Bot extends TelegramLongPollingBot {
         String data = callbackQuery.getData();
         List<InlineKeyboardButton> update = new ArrayList<>();
         int i = Integer.parseInt(data.split(" ")[1]);
+        var name = currencies.get(i).get(0);
         update.add(
                 InlineKeyboardButton.builder()
                         .text("Обновить♻️")
                         .callbackData("Update " + i)
                         .build()
         );
-        execute(
-                SendMessage.builder()
-                        .chatId(callbackQuery.getMessage().getChatId())
-                        .text("1 " + currencies.get(i).get(0) + " = "+ currencies.get(i).get(3) + " Руб")
-                        .replyMarkup(InlineKeyboardMarkup.builder().keyboardRow(update).build())
-                        .build()
-        );
+        if(name.contains("-")) {
+            execute(
+                    SendMessage.builder()
+                            .chatId(callbackQuery.getMessage().getChatId())
+                            .text(name + " = " + currencies.get(i).get(3))
+                            .replyMarkup(InlineKeyboardMarkup.builder().keyboardRow(update).build())
+                            .build()
+            );
+        } else{
+            execute(
+                    SendMessage.builder()
+                            .chatId(callbackQuery.getMessage().getChatId())
+                            .text("1 " + name + " = " + currencies.get(i).get(3) + " Руб")
+                            .replyMarkup(InlineKeyboardMarkup.builder().keyboardRow(update).build())
+                            .build()
+            );
+        }
     }
     @SneakyThrows
     private void CallBackQueryCurrencyUpdate(CallbackQuery callbackQuery){
@@ -79,22 +92,34 @@ public class Bot extends TelegramLongPollingBot {
         List<InlineKeyboardButton> update = new ArrayList<>();
         int i = Integer.parseInt(data.split(" ")[1]);
         var price = service.getPricesByFigies(List.of(currencies.get(i).get(1))).get(0);
-        currencies.get(i).set(3, price);
+        var name = currencies.get(i).get(0);
         if(!price.equals(currencies.get(i).get(3))){
+            currencies.get(i).set(3, price);
             update.add(
                     InlineKeyboardButton.builder()
                             .text("Обновить♻️")
                             .callbackData("Update " + i)
                             .build()
             );
-            execute(
-                    EditMessageText.builder()
-                            .chatId(callbackQuery.getMessage().getChatId())
-                            .messageId(callbackQuery.getMessage().getMessageId())
-                            .text("1 " + currencies.get(i).get(0) + " = "+ currencies.get(i).get(3) + " Руб")
-                            .replyMarkup(InlineKeyboardMarkup.builder().keyboardRow(update).build())
-                            .build()
-            );
+            if(name.contains("-")) {
+                execute(
+                        EditMessageText.builder()
+                                .chatId(callbackQuery.getMessage().getChatId())
+                                .messageId(callbackQuery.getMessage().getMessageId())
+                                .text(name + " = " + currencies.get(i).get(3))
+                                .replyMarkup(InlineKeyboardMarkup.builder().keyboardRow(update).build())
+                                .build()
+                );
+            } else{
+                execute(
+                        EditMessageText.builder()
+                                .chatId(callbackQuery.getMessage().getChatId())
+                                .messageId(callbackQuery.getMessage().getMessageId())
+                                .text("1 " + name + " = " + currencies.get(i).get(3) + " Руб")
+                                .replyMarkup(InlineKeyboardMarkup.builder().keyboardRow(update).build())
+                                .build()
+                );
+            }
         }
     }
     @SneakyThrows
