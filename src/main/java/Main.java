@@ -1,7 +1,12 @@
+import Services.TinkoffService;
+import com.google.protobuf.Timestamp;
+import com.google.protobuf.TimestampProto;
+import lombok.Data;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import mainBot.Bot;
 import org.apache.log4j.PropertyConfigurator;
+import org.glassfish.grizzly.http.util.TimeStamp;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.TelegramBotsApi;
@@ -31,7 +36,7 @@ public class Main{
         ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext(
                 "applicationContext.xml"
         );
-        Bot bot = context.getBean("telegramBotBean", Bot.class);
+        Bot bot = context.getBean("bot", Bot.class);
         TelegramBotsApi telegramBotsApi = new TelegramBotsApi(DefaultBotSession.class);
         telegramBotsApi.registerBot(bot);
         context.close();
