@@ -4,6 +4,7 @@ import com.google.protobuf.GeneratedMessageV3;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.EnableAsync;
@@ -22,6 +23,7 @@ import java.util.*;
 @AllArgsConstructor
 @Component
 @EnableAsync
+@Slf4j
 public class TinkoffService implements Service {
     private final InvestApi api = InvestApi.createSandbox(System.getenv("token"));
     private final MarketDataService marketDataService = api.getMarketDataService();

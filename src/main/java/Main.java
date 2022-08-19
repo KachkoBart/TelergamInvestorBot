@@ -1,3 +1,4 @@
+import Configurations.SpringConfig;
 import Services.TinkoffService;
 import com.google.protobuf.Timestamp;
 import com.google.protobuf.TimestampProto;
@@ -7,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import mainBot.Bot;
 import org.apache.log4j.PropertyConfigurator;
 import org.glassfish.grizzly.http.util.TimeStamp;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.TelegramBotsApi;
@@ -32,10 +34,10 @@ public class Main{
     public static void main(String[] args) {
         String log4jConfPath = "C:/Users/shv-0/IdeaProjects/TelergamInvestorBot/src/main/java/Properties/log4j.properties";
         PropertyConfigurator.configure(log4jConfPath);
-        log.info("Start");
-        ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext(
-                "applicationContext.xml"
+        AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(
+                SpringConfig.class
         );
+        log.info("Start");
         Bot bot = context.getBean("bot", Bot.class);
         TelegramBotsApi telegramBotsApi = new TelegramBotsApi(DefaultBotSession.class);
         telegramBotsApi.registerBot(bot);
