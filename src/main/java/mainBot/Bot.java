@@ -122,6 +122,7 @@ public class Bot extends TelegramLongPollingBot {
                 execute(
                         EditMessageText.builder()
                                 .chatId(callbackQuery.getMessage().getChatId())
+                                .messageId(callbackQuery.getMessage().getMessageId())
                                 .text(String.format("%s 1 гр = %s Руб \nВремя получения последней цены в часовом поясе UTC по времени биржи: %s\nБиржа: %s", name, price, time, market))
                                 .replyMarkup(InlineKeyboardMarkup.builder().keyboardRow(update).build())
                                 .build()
@@ -130,6 +131,7 @@ public class Bot extends TelegramLongPollingBot {
                 execute(
                         EditMessageText.builder()
                                 .chatId(callbackQuery.getMessage().getChatId())
+                                .messageId(callbackQuery.getMessage().getMessageId())
                                 .text(String.format("1 %s = %s Руб \nВремя получения последней цены в часовом поясе UTC по времени биржи: %s\nБиржа: %s", name, price, time, market))
                                 .replyMarkup(InlineKeyboardMarkup.builder().keyboardRow(update).build())
                                 .build()
