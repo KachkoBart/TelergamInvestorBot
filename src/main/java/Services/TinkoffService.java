@@ -28,7 +28,13 @@ public class TinkoffService implements Service {
     private final InvestApi api = InvestApi.createSandbox(System.getenv("token"));
     private final MarketDataService marketDataService = api.getMarketDataService();
     private final InstrumentsService instrumentsService = api.getInstrumentsService();
-
+    public List<String> getStockMarketForShares(List<Share> shares){
+        List<String> market = new ArrayList<>();
+        for(Share share:shares){
+            market.add(share.getExchange());
+        }
+        return market;
+    }
     public List<String> getStockMarketForCurrencies(List<Currency> currencies){
         List<String> market = new ArrayList<>();
         for(Currency curr:currencies){
@@ -66,11 +72,23 @@ public class TinkoffService implements Service {
         return figi;
     }
     @Override
+    public List<String> getFigiesByShares(@NotNull List<Share> shares){
+        List<String> figi = new ArrayList<>();
+        for (Share share : shares) {
+            figi.add(share.getFigi());
+        }
+        return figi;
+    }
     @SneakyThrows
+    @Override
     public List<Currency> getAllCurrenciesList(){
         return instrumentsService.getAllCurrencies().get();
     }
-
+    @SneakyThrows
+    @Override
+    public List<Share> getAllSharesList(){
+        return instrumentsService.getAllShares().get();
+    }
 
     @Override
     public List<List<String>> getAllNotEmptyCurrencies(){
@@ -98,6 +116,36 @@ public class TinkoffService implements Service {
         }
         return curr;
     }
-
+    @Override
+    public List<List<String>> getAllNotEmptyShares(){
+        var allsh = getAllSharesList();
+        var figies = getFigiesByShares(allsh);
+        var prices = getPricesByFigies(figies);
+        var times = getTimeByFigies(figies);
+        var market = getStockMarketForShares(allsh);
+        List<List<String>> shares = new LinkedList<>();
+        int len = allsh.size();
+        double price;
+        for(int i = 0; i < len;i++){
+            if(!prices.get(i).equals("0,000")){
+                shares.add(
+                        Arrays.asList(
+                                allsh.get(i).getName(),
+                                figies.get(i),
+                                allsh.get(i).getTicker(),
+                                prices.get(i),
+                                times.get(i),
+                                market.get(i),
+                                allsh.get(i).getCurrency(),
+                                allsh.get(i).getSector(),
+                                allsh.get(i).getShareType().name(),
+                                allsh.get(i).getCountryOfRisk(),
+                                String.valueOf(allsh.get(i).getLot())
+                        )
+                );
+            }
+        }
+        return shares;
+    }
 
 }

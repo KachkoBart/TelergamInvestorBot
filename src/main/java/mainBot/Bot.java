@@ -1,6 +1,5 @@
 package mainBot;
 
-import Services.Service;
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,8 +11,6 @@ import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.MessageEntity;
 import org.telegram.telegrambots.meta.api.objects.Update;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.util.*;
@@ -24,6 +21,8 @@ import java.util.*;
 public class Bot extends TelegramLongPollingBot {
     @Autowired
     private BotFunctionsForCurrencies functionsForCurrencies;
+    @Autowired
+    private BotFunctionsForShares functionsForShares;
 
 
     @Override
@@ -46,14 +45,29 @@ public class Bot extends TelegramLongPollingBot {
     }
     @SneakyThrows
     private void CallbackQuery(CallbackQuery callbackQuery){
-        if(callbackQuery.getData().contains("Update")){
+        String data = callbackQuery.getData();
+        if(data.contains("Currency Update")){
             CallBackQueryCurrencyUpdate(callbackQuery);
         } else if(callbackQuery.getData().contains("Currency")){
             CallBackQueryCurrency(callbackQuery);
+        } else if(data.contains("Share Update")){
+
+        } else if(data.contains("Share")){
+            CallBackQueryShare(callbackQuery);
         }
     }
     private void CallBackQueryCurrencyUpdate(CallbackQuery callbackQuery){
         Optional<EditMessageText> messageText = Optional.ofNullable(functionsForCurrencies.CallBackQueryCurrencyUpdate(callbackQuery));
+        if(messageText.isPresent()) {
+            try {
+                execute(messageText.get());
+            } catch (TelegramApiException e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+    private void CallBackQueryShareUpdate(CallbackQuery callbackQuery){
+        Optional<EditMessageText> messageText = Optional.ofNullable(functionsForShares.CallBackQueryShareUpdate(callbackQuery));
         if(messageText.isPresent()) {
             try {
                 execute(messageText.get());
@@ -69,6 +83,11 @@ public class Bot extends TelegramLongPollingBot {
         } catch (TelegramApiException e) {
             throw new RuntimeException(e);
         }
+    }@SneakyThrows
+    private void CallBackQueryShare(CallbackQuery callbackQuery){
+        execute(
+                functionsForShares.CallBackQueryShare(callbackQuery)
+        );
     }
     @SneakyThrows
     private void handleMessage(Message message) {
@@ -78,10 +97,12 @@ public class Bot extends TelegramLongPollingBot {
             if(commandEntities.isPresent()) {
                 String command = message.getText().substring(commandEntities.get().getOffset(), commandEntities.get().getLength());
                 switch (command) {
-                    case "/choose_a_promotion":
-                        choosePromotion(message);
+                    case "/choose_a_share":
+                        chooseShare(message);
+                        break;
                     case "/choose_a_currency":
                         chooseCurrency(message);
+                        break;
                 }
             }
         }
@@ -94,12 +115,9 @@ public class Bot extends TelegramLongPollingBot {
     }
 
     @SneakyThrows
-    private void choosePromotion(Message message){
+    private void chooseShare(Message message){
         execute(
-                SendMessage.builder()
-                        .text("1234")
-                        .chatId(message.getChatId().toString())
-                        .build()
+                functionsForShares.chooseShare(message)
         );
     }
 }
