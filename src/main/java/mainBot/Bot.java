@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageReplyMarkup;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Message;
@@ -46,16 +47,36 @@ public class Bot extends TelegramLongPollingBot {
     @SneakyThrows
     private void CallbackQuery(CallbackQuery callbackQuery){
         String data = callbackQuery.getData();
-        if(data.contains("Currency Update")){
-            CallBackQueryCurrencyUpdate(callbackQuery);
-        } else if(callbackQuery.getData().contains("Currency")){
-            CallBackQueryCurrency(callbackQuery);
-        } else if(data.contains("Share Update")){
-
+        if(data.contains("Currency")){
+            if(data.contains("Update")) {
+                CallBackQueryCurrencyUpdate(callbackQuery);
+            } else{
+                CallBackQueryCurrency(callbackQuery);
+            }
         } else if(data.contains("Share")){
-            CallBackQueryShare(callbackQuery);
+            if(data.contains("Update")) {
+                CallBackQueryShareUpdate(callbackQuery);
+            } else if(data.contains("Page")){
+                CallBackQuerySharePage(callbackQuery);
+            } else{
+                CallBackQueryShare(callbackQuery);
+            }
         }
     }
+
+    private void CallBackQuerySharePage(CallbackQuery callbackQuery) {
+        Optional<EditMessageReplyMarkup> messageText = Optional.ofNullable(functionsForShares.CallBackQuerySharePage(callbackQuery));
+        if(messageText.isPresent()) {
+            try {
+                execute(
+                        functionsForShares.CallBackQuerySharePage(callbackQuery)
+                );
+            } catch (TelegramApiException e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
     private void CallBackQueryCurrencyUpdate(CallbackQuery callbackQuery){
         Optional<EditMessageText> messageText = Optional.ofNullable(functionsForCurrencies.CallBackQueryCurrencyUpdate(callbackQuery));
         if(messageText.isPresent()) {

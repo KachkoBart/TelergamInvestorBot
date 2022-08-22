@@ -125,7 +125,6 @@ public class TinkoffService implements Service {
         var market = getStockMarketForShares(allsh);
         List<List<String>> shares = new LinkedList<>();
         int len = allsh.size();
-        double price;
         for(int i = 0; i < len;i++){
             if(!prices.get(i).equals("0,000")){
                 shares.add(
