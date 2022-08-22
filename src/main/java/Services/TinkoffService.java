@@ -1,12 +1,10 @@
 package Services;
 
-import com.google.protobuf.GeneratedMessageV3;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.stereotype.Component;
 import ru.tinkoff.piapi.contract.v1.Currency;
@@ -15,6 +13,8 @@ import ru.tinkoff.piapi.contract.v1.LastPrice;
 import ru.tinkoff.piapi.core.InstrumentsService;
 import ru.tinkoff.piapi.core.InvestApi;
 import ru.tinkoff.piapi.core.MarketDataService;
+
+import static Enums.TinkoffEnums.ShareType.forNumber;
 import static ru.tinkoff.piapi.core.utils.DateUtils.timestampToString;
 
 import java.util.*;
@@ -138,7 +138,7 @@ public class TinkoffService implements Service {
                                 market.get(i),
                                 allsh.get(i).getCurrency(),
                                 allsh.get(i).getSector(),
-                                allsh.get(i).getShareType().name(),
+                                forNumber(allsh.get(i).getShareType().getNumber()),
                                 allsh.get(i).getCountryOfRisk(),
                                 String.valueOf(allsh.get(i).getLot())
                         )
