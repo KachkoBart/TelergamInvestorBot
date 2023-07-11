@@ -1,4 +1,4 @@
-package mainBot;
+package BotLastPrices;
 
 import Services.Service;
 import lombok.SneakyThrows;
@@ -23,7 +23,7 @@ public class BotFunctionsForShares {
     private final int sizeOnePageShares = 20;
     private int sizeShares;
 
-    protected SendMessage CallBackQueryShare(CallbackQuery callbackQuery){
+    public SendMessage CallBackQueryShare(CallbackQuery callbackQuery){
         String data = callbackQuery.getData();
         List<InlineKeyboardButton> update = new ArrayList<>();
         int i = Integer.parseInt(data.split(" ")[1]);
@@ -67,7 +67,7 @@ public class BotFunctionsForShares {
                         .build()
                 ;
     }
-    protected EditMessageReplyMarkup CallBackQuerySharePage(CallbackQuery callbackQuery){
+    public EditMessageReplyMarkup CallBackQuerySharePage(CallbackQuery callbackQuery){
         String data = callbackQuery.getData();
         if(data.contains("Current"))return null;
         int page = Integer.parseInt(data.split(" ")[2]);
@@ -214,14 +214,14 @@ public class BotFunctionsForShares {
         }
         return list;
     }
-    protected EditMessageText CallBackQueryShareUpdate(CallbackQuery callbackQuery){
+    public EditMessageText CallBackQueryShareUpdate(CallbackQuery callbackQuery){
         String data = callbackQuery.getData();
         List<InlineKeyboardButton> update = new ArrayList<>();
         int i = Integer.parseInt(data.split(" ")[2]);
         List<String> tekShare = shares.get(i);
         String name = tekShare.get(0);
-        if(tekShare.get(4).equals(service.getTimeByFigies(List.of(tekShare.get(1))).get(0)))return null;
         String time = service.getTimeByFigies(List.of(tekShare.get(1))).get(0);
+        if(tekShare.get(4).equals(time))return null;
         String market = tekShare.get(5);
         String price = service.getPricesByFigies(List.of(tekShare.get(1))).get(0);
         String curr = tekShare.get(6);
@@ -261,8 +261,8 @@ public class BotFunctionsForShares {
                 ;
     }
 
-    @SneakyThrows
-    protected SendMessage chooseShare(Message message){
+
+    public SendMessage chooseShare(Message message){
         List<List<InlineKeyboardButton>> list = new ArrayList<>();
         this.shares = service.getAllNotEmptyShares();
         this.sizeShares = shares.size();

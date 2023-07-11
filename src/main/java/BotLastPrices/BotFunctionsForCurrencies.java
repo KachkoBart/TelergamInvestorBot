@@ -1,4 +1,4 @@
-package mainBot;
+package BotLastPrices;
 
 import Services.Service;
 import lombok.SneakyThrows;
@@ -18,7 +18,7 @@ public class BotFunctionsForCurrencies {
     private List<List<String>> currencies;
     @Autowired
     private Service service;
-    protected EditMessageText CallBackQueryCurrencyUpdate(CallbackQuery callbackQuery){
+    public EditMessageText CallBackQueryCurrencyUpdate(CallbackQuery callbackQuery){
         String data = callbackQuery.getData();
         List<InlineKeyboardButton> update = new ArrayList<>();
         int i = Integer.parseInt(data.split(" ")[2]);
@@ -69,7 +69,7 @@ public class BotFunctionsForCurrencies {
     }
 
     @SneakyThrows
-    protected SendMessage CallBackQueryCurrency(CallbackQuery callbackQuery){
+    public SendMessage CallBackQueryCurrency(CallbackQuery callbackQuery){
         String data = callbackQuery.getData();
         List<InlineKeyboardButton> update = new ArrayList<>();
         int i = Integer.parseInt(data.split(" ")[1]);
@@ -109,8 +109,8 @@ public class BotFunctionsForCurrencies {
             ;
         }
     }
-    @SneakyThrows
-    protected SendMessage chooseCurrency(Message message){
+
+    public SendMessage chooseCurrency(Message message){
         List<List<InlineKeyboardButton>> list = new ArrayList<>();
         this.currencies = service.getAllNotEmptyCurrencies();
         int len = currencies.size();

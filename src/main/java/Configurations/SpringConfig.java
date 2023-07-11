@@ -7,5 +7,7 @@ import org.springframework.stereotype.Component;
 @Configuration
 @ComponentScan("Services")
 @ComponentScan("mainBot")
+@ComponentScan("BotLastPrices")
+@ComponentScan("BotPortfolio")
 public class SpringConfig {
 }

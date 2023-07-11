@@ -94,6 +94,26 @@
     </build>
     <dependencies>
         <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-rest</artifactId>
+            <version>3.0.4</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-jpa</artifactId>
+            <version>3.0.4</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-tomcat</artifactId>
+            <version>2.0.5.RELEASE</version>
+        </dependency>
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>42.2.27</version>
+        </dependency>
+        <dependency>
             <groupId>org.springframework.data</groupId>
             <artifactId>spring-data-jdbc</artifactId>
             <version>3.1.1</version>
@@ -143,7 +163,7 @@
         <dependency>
             <groupId>ru.tinkoff.piapi</groupId>
             <artifactId>java-sdk-core</artifactId>
-            <version>1.0.11.1</version>
+            <version>1.4</version>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>

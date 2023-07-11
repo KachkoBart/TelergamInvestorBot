@@ -1,11 +1,13 @@
 package mainBot;
 
+import BotLastPrices.BotFunctionsForCurrencies;
+import BotLastPrices.BotFunctionsForShares;
+import BotPortfolio.BotFunctionsForPortfolio;
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
-import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageReplyMarkup;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
@@ -24,6 +26,8 @@ public class Bot extends TelegramLongPollingBot {
     private BotFunctionsForCurrencies functionsForCurrencies;
     @Autowired
     private BotFunctionsForShares functionsForShares;
+    @Autowired
+    private BotFunctionsForPortfolio functionsForPortfolio;
 
 
     @Override
@@ -124,6 +128,9 @@ public class Bot extends TelegramLongPollingBot {
                     case "/choose_a_currency":
                         chooseCurrency(message);
                         break;
+                    case "/get_portfolio":
+                        getPortfolio(message);
+                        break;
                 }
             }
         }
@@ -139,6 +146,12 @@ public class Bot extends TelegramLongPollingBot {
     private void chooseShare(Message message){
         execute(
                 functionsForShares.chooseShare(message)
+        );
+    }
+    @SneakyThrows
+    private void getPortfolio(Message message){
+        execute(
+                functionsForPortfolio.getPortfolio(message)
         );
     }
 }

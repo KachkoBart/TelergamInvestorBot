@@ -32,7 +32,7 @@ import java.util.concurrent.ExecutionException;
 public class Main{
     @SneakyThrows
     public static void main(String[] args) {
-        String log4jConfPath = "C:/Users/shv-0/IdeaProjects/TelergamInvestorBot/src/main/java/Properties/log4j.properties";
+        String log4jConfPath = "/Users/svecviktor/Documents/GitHub/TelergamInvestorBot/src/main/java/Properties/log4j.properties";
         PropertyConfigurator.configure(log4jConfPath);
         AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(
                 SpringConfig.class

@@ -1,8 +1,11 @@
 package Services;
 
 import org.jetbrains.annotations.NotNull;
+import ru.tinkoff.piapi.contract.v1.Account;
 import ru.tinkoff.piapi.contract.v1.Currency;
+import ru.tinkoff.piapi.contract.v1.Instrument;
 import ru.tinkoff.piapi.contract.v1.Share;
+import ru.tinkoff.piapi.core.models.Portfolio;
 
 import java.util.List;
 
@@ -15,4 +18,7 @@ public interface Service {
     public List<String> getFigiesByShares(@NotNull List<Share> shares);
     List<List<String>> getAllNotEmptyCurrencies();
     List<List<String>> getAllNotEmptyShares();
+    List<Account> getAccounts();
+    Portfolio getPortfolio(String accountId);
+    Instrument getInstrumentByFigi(String figi);
 }

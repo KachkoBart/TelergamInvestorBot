@@ -7,12 +7,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.stereotype.Component;
+import ru.tinkoff.invest.openapi.model.rest.MoneyAmount;
+import ru.tinkoff.piapi.contract.v1.*;
 import ru.tinkoff.piapi.contract.v1.Currency;
-import ru.tinkoff.piapi.contract.v1.Share;
-import ru.tinkoff.piapi.contract.v1.LastPrice;
-import ru.tinkoff.piapi.core.InstrumentsService;
-import ru.tinkoff.piapi.core.InvestApi;
-import ru.tinkoff.piapi.core.MarketDataService;
+import ru.tinkoff.piapi.core.*;
+import ru.tinkoff.piapi.core.models.Portfolio;
 
 import static Enums.TinkoffEnums.ShareType.forNumber;
 import static ru.tinkoff.piapi.core.utils.DateUtils.timestampToString;
@@ -25,9 +24,12 @@ import java.util.*;
 @EnableAsync
 @Slf4j
 public class TinkoffService implements Service {
-    private final InvestApi api = InvestApi.createSandbox(System.getenv("token"));
-    private final MarketDataService marketDataService = api.getMarketDataService();
+    private final InvestApi sandBoxApi = InvestApi.createSandbox(System.getenv("tinkoffToken"));
+    private final InvestApi api = InvestApi.createReadonly(System.getenv("tinkoffToken"));
+    private final MarketDataService marketDataService = sandBoxApi.getMarketDataService();
     private final InstrumentsService instrumentsService = api.getInstrumentsService();
+    private final OperationsService operationsService = api.getOperationsService();
+    private final UsersService usersService = api.getUserService();
     public List<String> getStockMarketForShares(List<Share> shares){
         List<String> market = new ArrayList<>();
         for(Share share:shares){
@@ -55,7 +57,7 @@ public class TinkoffService implements Service {
 
     @SneakyThrows
     public List<String> getPricesByFigies(List<String> figies){
-        var curr = getMarketDataService().getLastPrices(figies).get();
+        var curr = getMarketDataService().getLastPricesSync(figies);
         List<String> prices = new ArrayList<>();
         for(LastPrice lp:curr){
             prices.add(String.valueOf(String.format("%4.3f",lp.getPrice().getUnits() + Double.parseDouble(String.valueOf(lp.getPrice().getNano()))*0.000000001)));
@@ -145,6 +147,25 @@ public class TinkoffService implements Service {
             }
         }
         return shares;
+    }
+
+    @Override
+    public List<Account> getAccounts() {
+        if(usersService.getAccountsSync().isEmpty()){
+            String account = api.getSandboxService().openAccountSync();
+            api.getSandboxService().payInSync(account, MoneyValue.newBuilder().setUnits(10000).setCurrency("USD").build());
+        }
+        return usersService.getAccountsSync();
+    }
+
+    @Override
+    public Portfolio getPortfolio(String accountId) {
+        return operationsService.getPortfolioSync(accountId);
+    }
+
+    @Override
+    public Instrument getInstrumentByFigi(String figi) {
+        return instrumentsService.getInstrumentByFigiSync(figi);
     }
 
 }
